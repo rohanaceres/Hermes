@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermes.Model", "Hermes.Model\Hermes.Model.csproj", "{80E238CA-526D-49D3-A824-37E9EA48783C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermes.Server", "Hermes.Server\Hermes.Server.csproj", "{0A2F36CF-56E5-40DD-B354-7F580D61940C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermes.Core", "Hermes.Core\Hermes.Core.csproj", "{8768AB2E-A53F-4377-805F-F81222E9C124}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{80E238CA-526D-49D3-A824-37E9EA48783C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80E238CA-526D-49D3-A824-37E9EA48783C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80E238CA-526D-49D3-A824-37E9EA48783C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A2F36CF-56E5-40DD-B354-7F580D61940C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A2F36CF-56E5-40DD-B354-7F580D61940C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A2F36CF-56E5-40DD-B354-7F580D61940C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A2F36CF-56E5-40DD-B354-7F580D61940C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8768AB2E-A53F-4377-805F-F81222E9C124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8768AB2E-A53F-4377-805F-F81222E9C124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8768AB2E-A53F-4377-805F-F81222E9C124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8768AB2E-A53F-4377-805F-F81222E9C124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
