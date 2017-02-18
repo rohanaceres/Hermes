@@ -3,7 +3,7 @@
 namespace Hermes.Model.Request
 {
     // TODO: Doc.
-    public class SendRequest : BaseRequest
+    public sealed class SendRequest : BaseRequest
     {
         [JsonProperty(PropertyName = "dst")]
         public int DestinationUserId { get; set; }

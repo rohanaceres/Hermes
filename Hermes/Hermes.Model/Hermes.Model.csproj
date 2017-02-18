@@ -51,6 +51,7 @@
     <Compile Include="Request\LoginRequest.cs" />
     <Compile Include="Request\ReceiveRequest.cs" />
     <Compile Include="Request\SendRequest.cs" />
+    <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />
     <Compile Include="Response\ReceiveResponse.cs" />
     <Compile Include="Response\SendResponse.cs" />
