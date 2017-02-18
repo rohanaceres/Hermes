@@ -43,7 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsynListener.cs" />
+    <Compile Include="AsyncListener.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +54,10 @@
     <ProjectReference Include="..\Hermes.Core\Hermes.Core.csproj">
       <Project>{8768AB2E-A53F-4377-805F-F81222E9C124}</Project>
       <Name>Hermes.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Hermes.Model\Hermes.Model.csproj">
+      <Project>{80E238CA-526D-49D3-A824-37E9EA48783C}</Project>
+      <Name>Hermes.Model</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
