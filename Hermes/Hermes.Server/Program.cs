@@ -6,8 +6,8 @@ namespace Hermes.Server
     {
         static void Main(string[] args)
         {
-            CustomSocket socket = new CustomSocket();
-            //await socket.Connect();
+            AsynListener server = new AsynListener();
+            server.Start();
         }
     }
 }
