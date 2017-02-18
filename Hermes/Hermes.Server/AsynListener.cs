@@ -7,12 +7,13 @@ namespace Hermes.Server
     // TODO: Doc.
     internal sealed class AsynListener
     {
-        public CustomSocket Socket { get; set; } 
+        public CustomSocket Socket { get; private set; }
+            = new CustomSocket(Dns.GetHostName());
 
-        public AsynListener()
+        static void Main(string[] args)
         {
-            string hostName = Dns.GetHostName();
-            this.Socket = new CustomSocket(hostName);
+            AsynListener server = new AsynListener();
+            server.Start();
         }
 
         public void Start()
@@ -20,6 +21,8 @@ namespace Hermes.Server
             try
             {
                 this.Socket.BindAndListen();
+
+                Console.WriteLine("Host Name: {0}", this.Socket.HostName);
 
                 // Main loop, waiting for requests and performing some action:
                 while (true)

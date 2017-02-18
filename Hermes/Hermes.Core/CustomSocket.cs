@@ -22,6 +22,7 @@ namespace Hermes.Core
         // flow handlers:
         public ManualResetEvent OnConnectionReceived = new ManualResetEvent(false);
         private ManualResetEvent OnConnected = new ManualResetEvent(false);
+        private ManualResetEvent OnResponseReceived = new ManualResetEvent(false);
 
         // constructor
         public CustomSocket(string hostName = null)
@@ -33,6 +34,7 @@ namespace Hermes.Core
             }
 
             // Get mandatory info:
+            this.HostName = hostName;
             this.IpHostInfo = Dns.GetHostEntry(hostName);
             this.IpAddress = this.IpHostInfo.AddressList[0];
             this.EndPoint = new IPEndPoint(this.IpAddress, 
@@ -62,25 +64,46 @@ namespace Hermes.Core
             // Wait until a connection is made before continuing.  
             this.OnConnectionReceived.WaitOne();
         }
-        public Task Connect ()
+        public void Connect ()
         {
-            return Task.Run(() =>
-            {
+            //return Task.Run(() =>
+            //{
                 this.Socket.BeginConnect(this.EndPoint, new AsyncCallback(this.EndConnectCallback),
                     this.Socket);
                 this.OnConnected.WaitOne();
-            });
+            //});
+        }
+        public void Send(string data)
+        {
+            this.Send(this.Socket, data);
         }
 
         // private folks
-        private void Send(Socket handler, String data)
+        private void Send(Socket handler, string data)
         {
             // Convert the string data to byte data using ASCII encoding.  
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
             // Begin sending the data to the remote device.  
             handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
+                new AsyncCallback(this.SendCallback), handler);
+        }
+        private void Receive(Socket client)
+        {
+            try
+            {
+                // Create the state object.  
+                StateObject state = new StateObject();
+                state.WorkerSocket = client;
+
+                // Begin receiving the data from the remote device.  
+                client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0,
+                    new AsyncCallback(ReceiveCallback), state);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         // callbacks...
@@ -134,27 +157,17 @@ namespace Hermes.Core
             if (bytesRead > 0)
             {
                 // There  might be more data, so store the data received so far.  
-                state.StringBuilder.Append(Encoding.ASCII.GetString(
+                state.StringBuilder.Append(Encoding.UTF8.GetString(
                     state.Buffer, 0, bytesRead));
 
                 // Check for end-of-file tag. If it is not there, read   
                 // more data.  
                 content = state.StringBuilder.ToString();
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the   
-                    // client. Display it on the console.  
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                        content.Length, content);
-                    // Echo the data back to the client.  
-                    this.Send(handler, content);
-                }
-                else
-                {
-                    // Not all data received. Get more.  
-                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
+                
+                // All the data has been read from the   
+                // client. Display it on the console.  
+                Console.WriteLine("Read {0} bytes from socket. Data : {1}",
+                    content.Length, content);
             }
         }
         private void SendCallback(IAsyncResult ar)
@@ -171,6 +184,45 @@ namespace Hermes.Core
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.WorkerSocket;
+
+                // Read data from the remote device.  
+                int bytesRead = client.EndReceive(ar);
+
+                if (bytesRead > 0)
+                {
+                    // There might be more data, so store the data received so far.  
+                    state.StringBuilder.Append(Encoding.ASCII
+                        .GetString(state.Buffer, 0, bytesRead));
+
+                    // Get the rest of the data.  
+                    client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0,
+                        new AsyncCallback(ReceiveCallback), state);
+                }
+                else
+                {
+                    // All the data has arrived; put it in response.  
+                    if (state.StringBuilder.Length > 1)
+                    {
+                        string response = state.StringBuilder.ToString();
+                        Console.WriteLine("Response: <{0}>", response);
+                    }
+                    // Signal that all bytes have been received.  
+                    this.OnResponseReceived.Set();
+                }
             }
             catch (Exception e)
             {
