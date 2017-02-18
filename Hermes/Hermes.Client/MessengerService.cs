@@ -7,7 +7,7 @@ namespace Hermes.Client
     internal sealed class MessengerService
     {
         public CustomSocket Socket { get; private set; }
-            = new CustomSocket();
+            = new CustomSocket("DESKTOP-VUD70BH");
 
         static void Main(string[] args)
         {
@@ -20,9 +20,13 @@ namespace Hermes.Client
         public void Start ()
         {
             this.Socket.Connect();
-            Console.Write("> ");
-            string message = Console.ReadLine();
-            this.Socket.Send(message);
+
+            while (true)
+            {
+                Console.Write("> ");
+                string message = Console.ReadLine();
+                this.Socket.Send(message);
+            }
         }
     }
 }

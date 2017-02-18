@@ -43,6 +43,8 @@ namespace Hermes.Core
             // Create a TCP/IP socket.  
             this.Socket = new Socket(this.EndPoint.AddressFamily,
                 SocketType.Stream, ProtocolType.Tcp);
+            this.Socket.SetSocketOption(SocketOptionLevel.Socket,
+                SocketOptionName.DontLinger, true);
         }
 
         // public folks
@@ -81,11 +83,11 @@ namespace Hermes.Core
         // private folks
         private void Send(Socket handler, string data)
         {
-            // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            // Convert the string data to byte data using UTF-8 encoding.  
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
+                handler.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(this.SendCallback), handler);
         }
         private void Receive(Socket client)
@@ -144,6 +146,7 @@ namespace Hermes.Core
         }
         private void ReadCallback(IAsyncResult ar)
         {
+            this.OnResponseReceived.Reset();
             String content = String.Empty;
 
             // Retrieve the state object and the handler socket  
@@ -168,6 +171,8 @@ namespace Hermes.Core
                 // client. Display it on the console.  
                 Console.WriteLine("Read {0} bytes from socket. Data : {1}",
                     content.Length, content);
+
+                this.OnResponseReceived.Set();
             }
         }
         private void SendCallback(IAsyncResult ar)
@@ -175,15 +180,10 @@ namespace Hermes.Core
             try
             {
                 // Retrieve the socket from the state object.  
-                Socket handler = (Socket)ar.AsyncState;
+                Socket handler = ar.AsyncState as Socket;
 
                 // Complete sending the data to the remote device.  
                 int bytesSent = handler.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
-
             }
             catch (Exception e)
             {
