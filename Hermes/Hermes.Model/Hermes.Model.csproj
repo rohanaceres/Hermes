@@ -48,8 +48,10 @@
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request\LoginRequest.cs" />
+    <Compile Include="Request\ReceiveRequest.cs" />
     <Compile Include="Request\SendRequest.cs" />
     <Compile Include="Response\LoginResponse.cs" />
+    <Compile Include="Response\ReceiveResponse.cs" />
     <Compile Include="Response\SendResponse.cs" />
     <Compile Include="StateObject.cs" />
     <Compile Include="User.cs" />
