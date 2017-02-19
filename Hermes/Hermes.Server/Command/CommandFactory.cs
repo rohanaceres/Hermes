@@ -26,6 +26,10 @@ namespace Hermes.Server.Command
             {
                 return SendCommand.Send(request as SendRequest);
             }
+            if (request is ReceiveRequest)
+            {
+                return ReceiveCommand.GetPendingMessages(request as ReceiveRequest);
+            }
 
             return null;
         }

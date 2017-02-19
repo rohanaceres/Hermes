@@ -117,7 +117,7 @@ namespace Hermes.Server
             }
             else
             {
-                // TODO: Fazer alguma ação (assícrona) de acordo com o request recebido.
+                // Perform some asynchronous action based on the request received:
                 BaseResponse response = CommandFactory.Build(request);
 
                 // Create the corresponding response, based on the action
@@ -127,7 +127,7 @@ namespace Hermes.Server
                 current.BeginReceive(Buffer, 0, CommunicationProperties.PackageSize,
                     SocketFlags.None, ReceiveCallback, current);
             }
-        }
+       }
 
         private BaseRequest GetRequest(string json)
         {

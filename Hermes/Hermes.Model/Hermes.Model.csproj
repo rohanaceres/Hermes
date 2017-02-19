@@ -55,6 +55,7 @@
     <Compile Include="Response\BaseResponse.cs" />
     <Compile Include="Response\LoginResponse.cs" />
     <Compile Include="Response\LogoffResponse.cs" />
+    <Compile Include="Response\PendingMessages.cs" />
     <Compile Include="Response\ReceiveResponse.cs" />
     <Compile Include="Response\SendResponse.cs" />
     <Compile Include="StateObject.cs" />

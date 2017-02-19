@@ -6,6 +6,6 @@ namespace Hermes.Model.Response
     public sealed class ReceiveResponse : BaseResponse
     {
         [JsonProperty(PropertyName = "data")]
-        public string Data { get; set; }
+        public PendingMessages Data { get; set; }
     }
 }
