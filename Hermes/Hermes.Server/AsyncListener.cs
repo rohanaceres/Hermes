@@ -131,18 +131,18 @@ namespace Hermes.Server
 
         private BaseRequest GetRequest(string json)
         {
-            BaseRequest request = null;
             JsonSerializerMotherfucka serializer = new JsonSerializerMotherfucka();
+            BaseRequest request = serializer.Deserialize<BaseRequest>(json);
 
-            if (serializer.TryParse<LoginRequest>(json) == true)
+            if (request.CommandName == "login")
             {
                 request = serializer.Deserialize<LoginRequest>(json);
             }
-            else if (serializer.TryParse<ReceiveRequest>(json) == true)
+            else if (request.CommandName == "receber")
             {
                 request = serializer.Deserialize<ReceiveRequest>(json);
             }
-            else if (serializer.TryParse<SendRequest>(json) == true)
+            else if (request.CommandName == "enviar")
             {
                 request = serializer.Deserialize<SendRequest>(json);
             }

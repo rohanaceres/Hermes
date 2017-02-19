@@ -47,6 +47,7 @@
     <Compile Include="Command\CommandFactory.cs" />
     <Compile Include="Command\LoginCommand.cs" />
     <Compile Include="Command\LogoffCommand.cs" />
+    <Compile Include="Command\SendCommand.cs" />
     <Compile Include="Extension\MessageExtension.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

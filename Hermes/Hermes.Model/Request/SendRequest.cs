@@ -6,7 +6,7 @@ namespace Hermes.Model.Request
     public sealed class SendRequest : BaseRequest
     {
         [JsonProperty("dst")]
-        public int DestinationUserId { get; set; }
+        public string DestinationUserId { get; set; }
         [JsonProperty("data")]
         public string Data { get; set; }
 

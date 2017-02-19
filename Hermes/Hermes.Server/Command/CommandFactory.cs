@@ -22,6 +22,10 @@ namespace Hermes.Server.Command
             {
                 return LogoffCommand.LogUserOff(request as LogoffRequest);
             }
+            if (request is SendRequest)
+            {
+                return SendCommand.Send(request as SendRequest);
+            }
 
             return null;
         }

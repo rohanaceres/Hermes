@@ -3,7 +3,7 @@
 namespace Hermes.Model.Request
 {
     // TODO: Doc.
-    public abstract class BaseRequest
+    public class BaseRequest
     {
         [JsonProperty("cmd")]
         public string CommandName { get; set; }

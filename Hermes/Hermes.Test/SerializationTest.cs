@@ -88,14 +88,14 @@ namespace Hermes.Test
                 MessageIndex = 3,
                 UserId = "josé",
                 Data = "oieeee",
-                DestinationUserId = 3
+                DestinationUserId = "maria"
             };
 
             // Act
             string serializedRequest = request.SerializeToJson();
 
             // Assert
-            Assert.AreEqual(serializedRequest, "{\"dst\":3,\"data\":\"oieeee\",\"cmd\":\"enviar\",\"id\":\"josé\",\"msgNr\":3}");
+            Assert.AreEqual(serializedRequest, "{\"dst\":\"maria\",\"data\":\"oieeee\",\"cmd\":\"enviar\",\"id\":\"josé\",\"msgNr\":3}");
         }
         [TestMethod]
         public void DeserializeFromJson_ShouldReturnCorrectSendJson_IfSerializationIsCorrect()
@@ -106,7 +106,7 @@ namespace Hermes.Test
                 MessageIndex = 1,
                 UserId = "josé",
                 Data = "oieeee",
-                DestinationUserId = 3
+                DestinationUserId = "maria"
             };
             string json = expectedRequest.SerializeToJson();
 

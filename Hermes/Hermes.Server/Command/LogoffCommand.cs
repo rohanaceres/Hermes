@@ -15,7 +15,8 @@ namespace Hermes.Server.Command
             }
 
             LogoffResponse logoffResponse = new LogoffResponse();
-            logoffResponse.UserId = request.UserId;
+            // Add server ID:
+            logoffResponse.UserId = "0";
 
             return logoffResponse;
         }
