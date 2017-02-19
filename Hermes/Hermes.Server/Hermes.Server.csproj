@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AsyncListener.cs" />
     <Compile Include="Command\CommandFactory.cs" />
+    <Compile Include="Command\Joke\JokeProvider.cs" />
     <Compile Include="Command\LoginCommand.cs" />
     <Compile Include="Command\LogoffCommand.cs" />
     <Compile Include="Command\ReceiveCommand.cs" />

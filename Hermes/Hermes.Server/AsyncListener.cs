@@ -13,11 +13,13 @@ namespace Hermes.Server
     // TODO: Doc.
     internal sealed class AsyncListener
     {
-        // container of connected clients (ew!)
+        // containers (ew!)
         public static List<string> ConnectedClientIds { get; set; }
             = new List<string>();
         public static List<Message> PendingMessages { get; set; }
             = new List<Message>();
+        public static List<TocTocJoke> PendingJokes { get; set; }
+            = new List<TocTocJoke>();
 
         // properties...
         public List<Socket> ConnectedSockets { get; set; } 
