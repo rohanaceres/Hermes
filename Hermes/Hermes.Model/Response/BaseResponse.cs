@@ -6,7 +6,7 @@ namespace Hermes.Model.Response
     public abstract class BaseResponse
     {
         [JsonProperty(PropertyName = "id")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [JsonProperty(PropertyName = "msgNr")]
         public int MessageIndex { get; set; }
     }

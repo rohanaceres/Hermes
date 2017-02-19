@@ -1,4 +1,8 @@
-﻿using Hermes.Model;
+﻿using Hermes.Core.Serialization;
+using Hermes.Model;
+using Hermes.Model.Request;
+using Hermes.Model.Response;
+using Hermes.Server.Command;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -9,15 +13,20 @@ namespace Hermes.Server
     // TODO: Doc.
     internal sealed class AsyncListener
     {
-        private Socket ServerSocket { get; set; } 
-            = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        public List<Socket> ConnectedClients { get; private set; } 
+        // container of connected clients (ew!)
+        public static List<string> ConnectedClientIds { get; set; }
+            = new List<string>();
+        public static List<Message> PendingMessages { get; set; }
+            = new List<Message>();
+
+        // properties...
+        public List<Socket> ConnectedSockets { get; set; } 
             = new List<Socket>();
 
-        private byte[] Buffer 
+        private Socket ServerSocket { get; set; } 
+            = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private byte[] Buffer { get; set; }
             = new byte[CommunicationProperties.PackageSize];
-
-        
 
         // public folks...
         public void Initialize()
@@ -39,7 +48,7 @@ namespace Hermes.Server
         /// </summary>
         public void CloseAllSockets()
         {
-            foreach (Socket currentClient in this.ConnectedClients)
+            foreach (Socket currentClient in this.ConnectedSockets)
             {
                 currentClient.Shutdown(SocketShutdown.Both);
                 currentClient.Close();
@@ -63,7 +72,7 @@ namespace Hermes.Server
                 return;
             }
 
-            this.ConnectedClients.Add(socket);
+            this.ConnectedSockets.Add(socket);
 
             socket.BeginReceive(this.Buffer, 0, CommunicationProperties.PackageSize, 
                 SocketFlags.None, this.ReceiveCallback, socket);
@@ -72,7 +81,7 @@ namespace Hermes.Server
 
             this.ServerSocket.BeginAccept(AcceptCallback, null);
         }
-        private void ReceiveCallback(IAsyncResult results)
+        private async void ReceiveCallback(IAsyncResult results)
         {
             Socket current = results.AsyncState as Socket;
             int received;
@@ -88,25 +97,78 @@ namespace Hermes.Server
                 // Don't shutdown because the socket may be disposed and 
                 // its disconnected anyway:
                 current.Close();
-                this.ConnectedClients.Remove(current);
+                this.ConnectedSockets.Remove(current);
                 return;
             }
 
+            // Get request as string:
             byte[] recBuf = new byte[received];
             Array.Copy(Buffer, recBuf, received);
             string text = CommunicationProperties.CommunicationEncoding
                 .GetString(recBuf);
             Console.WriteLine("Request: <{0}>", text);
 
-            // TODO: Implementar comandos!
-            string response = "I'm not fully implemented yet. But I like you. Keed texting.";
-            Console.WriteLine("Response: <{0}>", response);
-            byte[] data = CommunicationProperties.CommunicationEncoding
-                    .GetBytes(response);
-            current.Send(data);
+            // Get request as serialized object:
+            BaseRequest request = this.GetRequest(text);
 
-            current.BeginReceive(Buffer, 0, CommunicationProperties.PackageSize, 
-                SocketFlags.None, ReceiveCallback, current);
+            if (request == null)
+            {
+                // TODO: Retornar mensagem de erro.
+            }
+            else
+            {
+                // TODO: Fazer alguma ação (assícrona) de acordo com o request recebido.
+                BaseResponse response = CommandFactory.Build(request);
+
+                // Create the corresponding response, based on the action
+                // performed previously:
+                current.Send(this.GetResponseData(response));
+
+                current.BeginReceive(Buffer, 0, CommunicationProperties.PackageSize,
+                    SocketFlags.None, ReceiveCallback, current);
+            }
+        }
+
+        private BaseRequest GetRequest(string json)
+        {
+            BaseRequest request = null;
+            JsonSerializerMotherfucka serializer = new JsonSerializerMotherfucka();
+
+            if (serializer.TryParse<LoginRequest>(json) == true)
+            {
+                request = serializer.Deserialize<LoginRequest>(json);
+            }
+            else if (serializer.TryParse<ReceiveRequest>(json) == true)
+            {
+                request = serializer.Deserialize<ReceiveRequest>(json);
+            }
+            else if (serializer.TryParse<SendRequest>(json) == true)
+            {
+                request = serializer.Deserialize<SendRequest>(json);
+            }
+
+            return request;
+        }
+        private byte[] GetResponseData(BaseResponse response)
+        {
+            string serializedResponse;
+
+            if (response is LoginResponse)
+            {
+                serializedResponse = (response as LoginResponse).SerializeToJson<LoginResponse>();
+            }
+            else if (response is ReceiveResponse)
+            {
+                serializedResponse = (response as ReceiveResponse).SerializeToJson<ReceiveResponse>();
+            }
+            else
+            {
+                serializedResponse = (response as SendResponse).SerializeToJson<SendResponse>();
+            }
+
+            Console.WriteLine("Response: <{0}>", serializedResponse);
+            return CommunicationProperties.CommunicationEncoding
+                .GetBytes(serializedResponse);
         }
     }
 }

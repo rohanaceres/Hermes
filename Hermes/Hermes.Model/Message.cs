@@ -4,7 +4,7 @@
     public class Message
     {
         public string Data { get; set; }
-        public int SourceUserId { get; set; }
-        public int DestinationUserId { get; set; }
+        public string SourceUserId { get; set; }
+        public string DestinationUserId { get; set; }
     }
 }

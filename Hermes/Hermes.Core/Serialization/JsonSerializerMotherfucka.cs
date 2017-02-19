@@ -30,6 +30,11 @@ namespace Hermes.Core.Serialization
                 return false;
             }
         }
+        public bool TryParse<T>(string data)
+        {
+            T obj = default(T);
+            return this.TryParse(data, out obj);
+        }
         /// <summary>
         /// Deserialize a string containing data in JSON format, into a generic object.
         /// </summary>

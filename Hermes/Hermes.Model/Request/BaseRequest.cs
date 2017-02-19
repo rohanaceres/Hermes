@@ -8,7 +8,7 @@ namespace Hermes.Model.Request
         [JsonProperty("cmd")]
         public string CommandName { get; set; }
         [JsonProperty("id")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [JsonProperty("msgNr")]
         public int MessageIndex { get; set; }
     }
