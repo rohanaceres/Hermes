@@ -5,11 +5,11 @@ namespace Hermes.Model.Request
     // TODO: Doc.
     public abstract class BaseRequest
     {
-        [JsonProperty(PropertyName = "cmd")]
+        [JsonProperty("cmd")]
         public string CommandName { get; set; }
-        [JsonProperty(PropertyName = "id")]
+        [JsonProperty("id")]
         public int UserId { get; set; }
-        [JsonProperty(PropertyName = "msgNr")]
+        [JsonProperty("msgNr")]
         public int MessageIndex { get; set; }
     }
 }
