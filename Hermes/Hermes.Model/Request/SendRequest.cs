@@ -9,5 +9,10 @@ namespace Hermes.Model.Request
         public int DestinationUserId { get; set; }
         [JsonProperty(PropertyName = "data")]
         public string Data { get; set; }
+
+        public SendRequest()
+        {
+            this.CommandName = "enviar";
+        }
     }
 }
