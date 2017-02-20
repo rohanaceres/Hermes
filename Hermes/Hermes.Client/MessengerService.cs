@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hermes.Client
@@ -20,9 +21,16 @@ namespace Hermes.Client
         // properties
         private Socket ClientSocket { get; set; }
             = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        public Socket ReceiveSocket { get; set; }
+            = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         // public folks
         public void Connect()
+        {
+            this.ConnectSocket(this.ClientSocket);
+            this.ConnectSocket(this.ReceiveSocket);
+        }
+        private void ConnectSocket(Socket socketToConnec)
         {
             int attempts = 1;
 
@@ -33,7 +41,7 @@ namespace Hermes.Client
                     Console.WriteLine("Connection attempt {0}", attempts);
 
                     // Tries to connect to the remote host:
-                    this.ClientSocket.Connect(IPAddress.Loopback,
+                    socketToConnec.Connect(IPAddress.Loopback,
                         CommunicationProperties.CommunicationPort);
                 }
                 catch (SocketException)
@@ -51,29 +59,50 @@ namespace Hermes.Client
 
             Console.Clear();
             Console.WriteLine("Successfully connected to {0}!", 
-                this.ClientSocket.RemoteEndPoint.ToString());
+                socketToConnec.RemoteEndPoint.ToString());
         }
         public void Chat ()
         {
             Console.WriteLine(@"<Type ""exit"" to properly disconnect client>");
 
-            Task.Run(() =>
+            Thread t = new Thread(() =>
             {
-                Task.Delay(5000);
-                do { this.GetPendingMessages(); } while (true);
+                try
+                {
+                    do
+                    {
+                        this.GetPendingMessages();
+                        Thread.Sleep(3000);
+                    }
+                    while (true);
+                }
+                catch (Exception e)
+                {
+                    ;
+                }
             });
+            t.IsBackground = true;
+            t.Start();
 
             while (true)
             {
                 // Send the request:
                 string request = this.GetRequest();
                 this.Send(request);
-                
-                // TODO: Tirar daqui.
-                this.GetPendingMessages();
             }
         }
+        /// <summary>
+        /// Close socket and exit program.
+        /// </summary>
+        public void Exit()
+        {
+            Send("exit"); // Tell the server we are exiting
+            ClientSocket.Shutdown(SocketShutdown.Both);
+            ClientSocket.Close();
+            Environment.Exit(0);
+        }
 
+        // private folks
         private void GetPendingMessages()
         {
             if (string.IsNullOrEmpty(MessengerService.ClientId) == true)
@@ -87,10 +116,10 @@ namespace Hermes.Client
                 MessageIndex = 0,
                 UserId = MessengerService.ClientId
             };
-            this.Send(receiveRequest.SerializeToJson());
+            this.SendRequest(receiveRequest.SerializeToJson(), this.ReceiveSocket);
 
             // Get the response from the server:
-            string jsonReceiveResponse = this.ReceiveResponse();
+            string jsonReceiveResponse = this.ReceiveResponse(this.ReceiveSocket);
 
             // Deserialize the response from the JSON string:
             ReceiveResponse receiveResponse = jsonReceiveResponse
@@ -106,27 +135,20 @@ namespace Hermes.Client
             // Shows the response in the console:
             this.ShowMessages(receiveResponse.Data.Messages);
         }
-
         private void ShowMessages(List<PendingMessage> messages)
         {
+            int currentCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, currentCursor);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentCursor);
+
             foreach (PendingMessage msg in messages)
             {
                 Console.WriteLine("{0} > {1}", msg.Sender, msg.Message);
             }
+            Console.Write("Me > ");
         }
 
-        /// <summary>
-        /// Close socket and exit program.
-        /// </summary>
-        public void Exit()
-        {
-            Send("exit"); // Tell the server we are exiting
-            ClientSocket.Shutdown(SocketShutdown.Both);
-            ClientSocket.Close();
-            Environment.Exit(0);
-        }
-
-        // private folks
         private string GetRequest()
         {
             Console.Write("Me > ");
@@ -166,30 +188,57 @@ namespace Hermes.Client
                 json = request.SerializeToJson();
 
                 // Send the requesr as JSON:
-                this.SendRequest(json);
+                this.SendRequest(json, this.ClientSocket);
                 
                 // Receive the response:
-                string jsonResponse = this.ReceiveResponse();
+                string jsonResponse = this.ReceiveResponse(this.ClientSocket);
 
                 // Deserialize response from JSON to object:
                 LoginResponse response = jsonResponse.DeserializeFromJson<LoginResponse>();
 
                 // Show possible pending messages:
                 this.ShowMessages(response.Data.Messages);
+
+                MessengerService.ClientId = request.UserId;
             }
-            
+            else if (args[0] == "send")
+            {
+                // Read command args:
+                SendOption send = new SendOption();
+                CommandLine.Parser.Default.ParseArguments(args, send);
+
+                // Setup request and serialize it into a string:
+                SendRequest request = new SendRequest()
+                {
+                    DestinationUserId = send.DestinationUser,
+                    UserId = MessengerService.ClientId,
+                    Data = send.Message
+                };
+
+                // Serialize the object into a JSON:
+                json = request.SerializeToJson();
+
+                // Send the requesr as JSON:
+                this.SendRequest(json, this.ClientSocket);
+
+                // Receive the response:
+                string jsonResponse = this.ReceiveResponse(this.ClientSocket);
+
+                // Deserialize response from JSON to object:
+                LoginResponse response = jsonResponse.DeserializeFromJson<LoginResponse>();
+            }
         }
-        private void SendRequest (string json)
+        private void SendRequest (string json, Socket socket)
         {
             // Send the request:
             byte[] buffer = CommunicationProperties.CommunicationEncoding
                 .GetBytes(json);
-            this.ClientSocket.Send(buffer, 0, buffer.Length, SocketFlags.None);
+            socket.Send(buffer, 0, buffer.Length, SocketFlags.None);
         }
-        private string ReceiveResponse()
+        private string ReceiveResponse(Socket socket)
         {
             byte[] buffer = new byte[CommunicationProperties.PackageSize];
-            int received = ClientSocket.Receive(buffer, SocketFlags.None);
+            int received = socket.Receive(buffer, SocketFlags.None);
 
             // If nothing received, returns NULL.
             if (received <= 0) { return null; }

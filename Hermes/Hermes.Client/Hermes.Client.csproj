@@ -50,6 +50,7 @@
     <Compile Include="Option\LoginOption.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="MessengerService.cs" />
+    <Compile Include="Option\SendOption.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
