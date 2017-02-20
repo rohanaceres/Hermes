@@ -35,6 +35,8 @@ namespace Hermes.Server
         {
             Console.Title = string.Format("Hermes Server - {0}",
                 Dns.GetHostName());
+            // TODO: Retirar mock daqui!
+            this.MockStuff();
             Console.WriteLine("Setting up server...");
 
             this.ServerSocket.Bind(new IPEndPoint(IPAddress.Any, 
@@ -44,6 +46,17 @@ namespace Hermes.Server
 
             Console.WriteLine("Server setup complete");
         }
+
+        private void MockStuff()
+        {
+            AsyncListener.PendingMessages.Add(new Message
+            {
+                Data = "hola que tal!",
+                DestinationUserId = "maria",
+                SourceUserId = "ceres"
+            });
+        }
+
         /// <summary>
         /// Close all connected client (we do not need to shutdown the server 
         /// socket as its connections are already closed with the clients).
@@ -83,7 +96,7 @@ namespace Hermes.Server
 
             this.ServerSocket.BeginAccept(AcceptCallback, null);
         }
-        private async void ReceiveCallback(IAsyncResult results)
+        private void ReceiveCallback(IAsyncResult results)
         {
             Socket current = results.AsyncState as Socket;
             int received;
