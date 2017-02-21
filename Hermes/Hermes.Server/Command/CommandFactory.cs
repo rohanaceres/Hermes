@@ -14,6 +14,10 @@ namespace Hermes.Server.Command
 
         public static BaseResponse Build (BaseRequest request)
         {
+            if (request is ReceiveRequest)
+            {
+                return ReceiveCommand.GetPendingMessages(request as ReceiveRequest);
+            }
             if (request is LoginRequest)
             {
                 return LoginCommand.LogUserIn(request as LoginRequest);
@@ -25,10 +29,6 @@ namespace Hermes.Server.Command
             if (request is SendRequest)
             {
                 return SendCommand.Send(request as SendRequest);
-            }
-            if (request is ReceiveRequest)
-            {
-                return ReceiveCommand.GetPendingMessages(request as ReceiveRequest);
             }
 
             return null;

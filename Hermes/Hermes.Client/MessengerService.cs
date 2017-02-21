@@ -87,11 +87,22 @@ namespace Hermes.Client
         /// <summary>
         /// Close socket and exit program.
         /// </summary>
-        public void Exit()
+        public void Logoff()
         {
-            Send("exit"); // Tell the server we are exiting
+            LogoffRequest logoff = new LogoffRequest()
+            {
+                UserId = MessengerService.ClientId
+            };
+
+            this.SendRequest(logoff.SerializeToJson(), this.ClientSocket);
+
+            string jsonLogoffResponse = this.ReceiveResponse(this.ClientSocket);
+
+            MessengerService.ClientId = null;
+
             ClientSocket.Shutdown(SocketShutdown.Both);
             ClientSocket.Close();
+
             Environment.Exit(0);
         }
 
@@ -152,12 +163,6 @@ namespace Hermes.Client
         {
             Console.Write("Me > ");
             string request = Console.ReadLine();
-
-            // TODO: Implementação mais inteligente de comandos?
-            if (request.ToLower() == "exit")
-            {
-                this.Exit();
-            }
 
             return request;
         }
@@ -225,6 +230,10 @@ namespace Hermes.Client
 
                 // Deserialize response from JSON to object:
                 LoginResponse response = jsonResponse.DeserializeFromJson<LoginResponse>();
+            }
+            else if (args[0] == "logoff")
+            {
+                this.Logoff();
             }
             else
             {

@@ -139,6 +139,8 @@ namespace Hermes.Server
             JsonSerializerMotherfucka serializer = new JsonSerializerMotherfucka();
             BaseRequest request = serializer.Deserialize<BaseRequest>(json);
 
+            if (request == null) { return null; }
+
             if (request.CommandName == "login")
             {
                 request = serializer.Deserialize<LoginRequest>(json);
@@ -151,6 +153,10 @@ namespace Hermes.Server
             {
                 request = serializer.Deserialize<SendRequest>(json);
             }
+            else if (request.CommandName == "logoff")
+            {
+                request = serializer.Deserialize<LogoffRequest>(json);
+            }
 
             return request;
         }
@@ -160,15 +166,23 @@ namespace Hermes.Server
 
             if (response is LoginResponse)
             {
-                serializedResponse = (response as LoginResponse).SerializeToJson<LoginResponse>();
+                serializedResponse = (response as LoginResponse)
+                    .SerializeToJson<LoginResponse>();
             }
             else if (response is ReceiveResponse)
             {
-                serializedResponse = (response as ReceiveResponse).SerializeToJson<ReceiveResponse>();
+                serializedResponse = (response as ReceiveResponse)
+                    .SerializeToJson<ReceiveResponse>();
+            }
+            else if (response is LogoffResponse)
+            {
+                serializedResponse = (response as LogoffResponse)
+                    .SerializeToJson<LogoffResponse>();
             }
             else
             {
-                serializedResponse = (response as SendResponse).SerializeToJson<SendResponse>();
+                serializedResponse = (response as SendResponse)
+                    .SerializeToJson<SendResponse>();
             }
 
             Console.WriteLine("Response: <{0}>", serializedResponse);

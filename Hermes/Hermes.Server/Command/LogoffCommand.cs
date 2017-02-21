@@ -14,8 +14,8 @@ namespace Hermes.Server.Command
                 AsyncListener.ConnectedClientIds.Remove(request.UserId);
             }
 
-            LogoffResponse logoffResponse = new LogoffResponse();
             // Add server ID:
+            LogoffResponse logoffResponse = new LogoffResponse();
             logoffResponse.UserId = "0";
 
             return logoffResponse;

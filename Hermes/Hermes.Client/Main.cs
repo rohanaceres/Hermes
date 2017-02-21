@@ -16,7 +16,7 @@ namespace Hermes.Client
 
             client.Connect();
             client.Chat();
-            client.Exit();
+            client.Logoff();
         }
     }
 }
