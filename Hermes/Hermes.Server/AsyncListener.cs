@@ -25,11 +25,6 @@ namespace Hermes.Server
         public List<Socket> ConnectedSockets { get; set; } 
             = new List<Socket>();
 
-        private Socket ServerSocket { get; set; } 
-            = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private byte[] Buffer { get; set; }
-            = new byte[CommunicationProperties.PackageSize];
-
         // public folks...
         public void Initialize()
         {
@@ -47,15 +42,10 @@ namespace Hermes.Server
             Console.WriteLine("Server setup complete");
         }
 
-        private void MockStuff()
-        {
-            AsyncListener.PendingMessages.Add(new Message
-            {
-                Data = "hola que tal!",
-                DestinationUserId = "maria",
-                SourceUserId = "ceres"
-            });
-        }
+        private Socket ServerSocket { get; set; } 
+            = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private byte[] Buffer { get; set; }
+            = new byte[CommunicationProperties.PackageSize];
 
         /// <summary>
         /// Close all connected client (we do not need to shutdown the server 
@@ -184,6 +174,16 @@ namespace Hermes.Server
             Console.WriteLine("Response: <{0}>", serializedResponse);
             return CommunicationProperties.CommunicationEncoding
                 .GetBytes(serializedResponse);
+        }
+
+        private void MockStuff()
+        {
+            AsyncListener.PendingMessages.Add(new Message
+            {
+                Data = "hola que tal!",
+                DestinationUserId = "maria",
+                SourceUserId = "ceres"
+            });
         }
     }
 }

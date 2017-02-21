@@ -28,6 +28,10 @@ namespace Hermes.Server.Command
                 );
             loginResponse.UserId = "0";
 
+            // Remove pending messages from buffer:
+            AsyncListener.PendingMessages
+                .RemoveAll(m => m.DestinationUserId == loginRequest.UserId);
+
             return loginResponse;
         }
     }
