@@ -1,7 +1,9 @@
-﻿namespace Hermes.Model
+﻿using System;
+
+namespace Hermes.Model
 {
     // TODO: Doc.
-    public sealed class TocTocJoke
+    public sealed class TocTocJoke : ICloneable
     {
         public const string EntryText = "Toc, Toc";
         public const string ForcedInteraction = "Quem é?";
@@ -13,5 +15,10 @@
 
         public string[] ClientInteractions { get; set; }
         public int ClientInteractionIndex { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

@@ -77,22 +77,24 @@ namespace Hermes.Server.Command
                 }
                 else
                 {
-                    // Return error message and remove the joke fromthe bunch:
-                    Message errorMsg = new Message()
-                    {
-                        Data = "(Piada removida)",
-                        DestinationUserId = request.UserId
-                    };
-
-                    AsyncListener.PendingMessages.Add(errorMsg);
-                    AsyncListener.PendingJokes.Remove(joke);
+                    SendCommand.HandleJokeError(request.UserId, joke);
                 }
             }
         }
         private static void HandleNewJoke(SendRequest request)
         {
+            TocTocJoke joke = AsyncListener.PendingJokes
+                .Where(j => j.UserId == request.UserId)
+                .FirstOrDefault();
+
+            if (joke != null)
+            {
+                SendCommand.HandleJokeError(request.UserId, joke);
+                return;
+            }
+
             // Create joke for the request user:
-            TocTocJoke joke = JokeProvider.GetNew();
+            joke = JokeProvider.GetNew();
             joke.UserId = request.UserId;
 
             // Add a joke message into the container of pending messages.
@@ -112,6 +114,18 @@ namespace Hermes.Server.Command
 
             // Add this joke to the container of pending jokes:
             AsyncListener.PendingJokes.Add(joke);
+        }
+        private static void HandleJokeError(string userId, TocTocJoke joke)
+        {
+            // Return error message and remove the joke fromthe bunch:
+            Message errorMsg = new Message()
+            {
+                Data = "(Piada removida)",
+                DestinationUserId = userId
+            };
+
+            AsyncListener.PendingMessages.Add(errorMsg);
+            AsyncListener.PendingJokes.Remove(joke);
         }
     }
 }

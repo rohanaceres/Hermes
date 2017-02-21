@@ -130,6 +130,8 @@ namespace Hermes.Client
         }
         private void ShowMessages(List<PendingMessage> messages)
         {
+            if (messages == null || messages.Count <= 0) { return; }
+            
             this.RemovePreviousLine();
 
             foreach (PendingMessage msg in messages)
@@ -138,7 +140,6 @@ namespace Hermes.Client
             }
             Console.Write("Me > ");
         }
-
         private void RemovePreviousLine()
         {
             int currentCursor = Console.CursorTop;

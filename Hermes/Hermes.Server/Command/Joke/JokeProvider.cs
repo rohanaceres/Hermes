@@ -51,7 +51,8 @@ namespace Hermes.Server.Command.Joke
         public static TocTocJoke GetNew()
         {
             Random random = new Random();
-            return JokeProvider.Jokes[random.Next(JokeProvider.JokeNumber)];
+            return JokeProvider.Jokes[random.Next(JokeProvider.JokeNumber)]
+                .Clone() as TocTocJoke;
         }
     }
 }
