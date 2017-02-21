@@ -67,19 +67,12 @@ namespace Hermes.Client
 
             Thread t = new Thread(() =>
             {
-                try
+                do
                 {
-                    do
-                    {
-                        this.GetPendingMessages();
-                        Thread.Sleep(3000);
-                    }
-                    while (true);
+                    this.GetPendingMessages();
+                    Thread.Sleep(500);
                 }
-                catch (Exception e)
-                {
-                    ;
-                }
+                while (true);
             });
             t.IsBackground = true;
             t.Start();
@@ -137,16 +130,21 @@ namespace Hermes.Client
         }
         private void ShowMessages(List<PendingMessage> messages)
         {
-            int currentCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, currentCursor);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentCursor);
+            this.RemovePreviousLine();
 
             foreach (PendingMessage msg in messages)
             {
                 Console.WriteLine("{0} > {1}", msg.Sender, msg.Message);
             }
             Console.Write("Me > ");
+        }
+
+        private void RemovePreviousLine()
+        {
+            int currentCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, currentCursor);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentCursor);
         }
 
         private string GetRequest()
@@ -212,7 +210,7 @@ namespace Hermes.Client
                 {
                     DestinationUserId = send.DestinationUser,
                     UserId = MessengerService.ClientId,
-                    Data = send.Message
+                    Data = string.Join(" ", send.WordsInMessage)
                 };
 
                 // Serialize the object into a JSON:
@@ -226,6 +224,10 @@ namespace Hermes.Client
 
                 // Deserialize response from JSON to object:
                 LoginResponse response = jsonResponse.DeserializeFromJson<LoginResponse>();
+            }
+            else
+            {
+                this.RemovePreviousLine();
             }
         }
         private void SendRequest (string json, Socket socket)
